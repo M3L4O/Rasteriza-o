@@ -17,7 +17,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <iterator>
 #include <list>
 #include <string>
 #include <vector>
@@ -58,6 +57,7 @@ typedef struct {
   int *x;
   int *y;
   int type;
+  int size;
 } Shape;
 
 std::list<Shape> shapes;
@@ -287,7 +287,8 @@ void drawLine(int x[], int y[]) {
   Shape forma;
   forma.x = x;
   forma.y = y;
-  forma.type = 0;
+  forma.type = 1;
+  forma.size = 2;
   std::list<Point> pnts(reduce2TheFirstOct(x[0], x[1], y[0], y[1]));
   forma.pontos.assign(pnts.begin(), pnts.end());
   shapes.push_front(forma);
@@ -296,7 +297,8 @@ void drawRectangle(int x[], int y[]) {
   Shape forma;
   forma.x = x;
   forma.y = y;
-  forma.type = 1;
+  forma.type = 2;
+  forma.size = 2;
   std::list<Point> pnts(reduce2TheFirstOct(x[0], x[1], y[0], y[0]));
   pnts.splice(pnts.end(), reduce2TheFirstOct(x[0], x[0], y[0], y[1]));
   pnts.splice(pnts.end(), reduce2TheFirstOct(x[1], x[1], y[0], y[1]));
@@ -310,7 +312,8 @@ void drawTriangle(int x[], int y[]) {
   Shape forma;
   forma.x = x;
   forma.y = y;
-  forma.type = 2;
+  forma.type = 3;
+  forma.size = 3;
   std::list<Point> pnts(reduce2TheFirstOct(x[0], x[1], y[0], y[1]));
   pnts.splice(pnts.end(), reduce2TheFirstOct(x[1], x[2], y[1], y[2]));
   pnts.splice(pnts.end(), reduce2TheFirstOct(x[0], x[2], y[0], y[2]));
@@ -323,7 +326,8 @@ void drawPolygon(int x[], int y[]) {
   Shape forma;
   forma.x = x;
   forma.y = y;
-  forma.type = 3;
+  forma.type = 4;
+  forma.size = 4;
   std::list<Point> pnts(reduce2TheFirstOct(x[0], x[1], y[0], y[1]));
   pnts.splice(pnts.end(), reduce2TheFirstOct(x[1], x[2], y[1], y[2]));
   pnts.splice(pnts.end(), reduce2TheFirstOct(x[2], x[3], y[2], y[3]));
@@ -338,7 +342,8 @@ void drawCircunference(int x[], int y[]) {
   Shape forma;
   forma.x = x;
   forma.y = y;
-  forma.type = 4;
+  forma.type = 5;
+  forma.size = 2;
   std::list<Point> pnts(bresenhamCircunference(x[0], y[0], R));
   forma.pontos.assign(pnts.begin(), pnts.end());
   shapes.push_front(forma);
@@ -480,8 +485,6 @@ std::list<Point> bresenhamCircunference(int x1, int y1, int R) {
 }
 void translation() {
   Shape sp = shapes.front();
-  int length = (int)sizeof(sp.x) / sizeof(sp.x[0]);
-  std::cout << length << std::endl;
   int Dx, Dy;
   fflush(stdin);
   std::cout << "Digite a distância deslocar em x:" << std::endl;
@@ -489,7 +492,7 @@ void translation() {
   fflush(stdin);
   std::cout << "Digite a distância a deslocar em y:" << std::endl;
   std::cin >> Dy;
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < sp.size; i++) {
     sp.x[i] += Dx;
     sp.y[i] += Dy;
   }
@@ -497,8 +500,6 @@ void translation() {
 }
 void scale() {
   Shape sp = shapes.front();
-  int length = (int)sizeof(sp.x) / sizeof(sp.x[0]);
-  std::cout << length << std::endl;
   float Sx, Sy;
   fflush(stdin);
   std::cout << "Digite o valor de Sx:" << std::endl;
@@ -508,7 +509,7 @@ void scale() {
   std::cin >> Sy;
   int des_x = sp.x[0];
   int des_y = sp.y[0];
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < sp.size; i++) {
     sp.x[i] = (sp.x[i] - des_x) * Sx + des_x;
     sp.y[i] = (sp.y[i] - des_y) * Sy + des_y;
   }
@@ -517,13 +518,11 @@ void scale() {
 
 void reflection() {
   Shape sp = shapes.front();
-  int length = (int)sizeof(sp.x) / sizeof(sp.x[0]);
-  std::cout << length << std::endl;
   std::string eixo;
   fflush(stdin);
   std::cout << "Digite qual eixo deseja refletir:" << std::endl;
   std::cin >> eixo;
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < sp.size; i++) {
     if (std::string::npos != eixo.find("xy")) {
       sp.x[i] = width - sp.x[i];
       sp.y[i] = height - sp.y[i];
@@ -537,13 +536,11 @@ void reflection() {
 }
 void rotate() {
   Shape sp = shapes.front();
-  int length = (int)sizeof(sp.x) / sizeof(sp.x[0]);
-  std::cout << length << std::endl;
   float angle;
   fflush(stdin);
   std::cout << "Digite qual angulo deseja rotacionar:" << std::endl;
   std::cin >> angle;
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < sp.size; i++) {
     sp.x[i] = (int)(sp.x[i] - sp.x[0]) * std::cos(angle) -
               (sp.y[i] - sp.y[0]) * std::sin(angle) + sp.x[0];
     sp.y[i] = (int)(sp.y[i] - sp.y[0]) * std::cos(angle) +
@@ -553,8 +550,6 @@ void rotate() {
 }
 void shear() {
   Shape sp = shapes.front();
-  int length = (int)sizeof(sp.x) / sizeof(sp.x[0]);
-  std::cout << length << std::endl;
   float Cx, Cy;
   fflush(stdin);
   std::cout << "Digite o valor de Cx:" << std::endl;
@@ -562,7 +557,7 @@ void shear() {
   fflush(stdin);
   std::cout << "Digite o valor de Cy:" << std::endl;
   std::cin >> Cy;
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < sp.size; i++) {
     sp.x[i] -= sp.x[0];
     sp.x[i] += (int)Cy * (sp.y[i] - sp.y[0]) + sp.x[0];
     sp.y[i] -= sp.y[0];
@@ -573,19 +568,19 @@ void shear() {
 void drawTransformation(Shape sp) {
   shapes.pop_front();
   switch (sp.type) {
-  case 0:
+  case 1:
     drawLine(sp.x, sp.y);
     break;
-  case 1:
+  case 2:
     drawRectangle(sp.x, sp.y);
     break;
-  case 2:
+  case 3:
     drawTriangle(sp.x, sp.y);
     break;
-  case 3:
+  case 4:
     drawPolygon(sp.x, sp.y);
     break;
-  case 4:
+  case 5:
     drawCircunference(sp.x, sp.y);
     break;
   }
